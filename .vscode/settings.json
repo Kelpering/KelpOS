@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "kmain.h": "c",
+        "cstdint": "c",
+        "stdint.h": "c",
+        "stdint-gcc.h": "c",
+        "klib.h": "c"
+    }
+}
