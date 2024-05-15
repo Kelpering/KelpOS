@@ -39,10 +39,10 @@ typedef struct {
 // Struct with values that are useful to core device drivers. Parsed from firmware provided FDT struct by fdt_parse().
 typedef struct {
     // Handle Power/Reboot systems
-    void *power_addr;
-    uint64_t power_value;
-    void *reboot_addr;
-    uint64_t reboot_value;
+    uint32_t *power_addr;
+    uint32_t power_value;
+    uint32_t *reboot_addr;
+    uint32_t reboot_value;
 
     // Handle UART
     void *uart_addr;
