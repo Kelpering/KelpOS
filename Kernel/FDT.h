@@ -5,13 +5,12 @@
 
 //* Const
 
-// Little Endian
+// Big endian converted
 const uint32_t FDT_MAGIC = 0xedfe0dd0;
 
 //* Structs
 
-typedef struct 
-{
+typedef struct {
     uint32_t magic;             // 0xd00dfeed in big endian format
     uint32_t totalsize;         // Total size of FDT struct (including free space gaps) in bytes
     uint32_t off_dt_struct;     // Offset (in bytes) of the struct block
@@ -36,7 +35,29 @@ typedef struct {
     uint32_t name_offset;
 } __attribute__((packed)) fdt_struct_entry;
 
-//! Add parser struct that we can fill ourselves.
-//! Make it non-static, just a struct that we pass into the parser, save elsewhere.
+
+// Struct with values that are useful to core device drivers. Parsed from firmware provided FDT struct by fdt_parse().
+typedef struct {
+    // Handle Power/Reboot systems
+    void *power_addr;
+    uint64_t power_value;
+    void *reboot_addr;
+    uint64_t reboot_value;
+
+    // Handle UART
+    void *uart_addr;
+
+    // Handle VGA
+    void *vga_addr;
+
+    // Handle ram (largest block of contiguous ram)
+    void *ram_start;
+    void *ram_end;
+
+} fdt_parsed_list;
+
+
+// Parses FDT and returns useful values into fdt_parsed_list struct. Expanded per device supported.
+int fdt_parse(fdt_header *fdt);
 
 #endif // _FDT_H_

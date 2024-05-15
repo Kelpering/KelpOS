@@ -4,5 +4,6 @@ void panic()
 {
     // Replace asm with better debug info later
     asm("li x1, 0xCCCCCCCC");
-    while(1);
+    while(1)
+        asm("wfi");
 }

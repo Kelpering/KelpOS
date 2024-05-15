@@ -1,0 +1,6 @@
+.vscode/
+.vscode/*
+*.o
+Kernel/*.o
+*.elf
+Kernel/*.elf

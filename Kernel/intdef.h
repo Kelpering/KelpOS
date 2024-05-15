@@ -1,8 +1,6 @@
 #ifndef _INTDEF_H_
 #define _INTDEF_H_
 
-#include <stddef.h>
-
 // UINT
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -17,6 +15,9 @@ typedef signed long int64_t;
 
 // MISC
 typedef uint64_t size_t;
+#define true 1
+#define false 0
+#define error -1
 
 
 #endif // _INTDEF_H_
