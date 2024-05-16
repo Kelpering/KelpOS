@@ -32,4 +32,21 @@
 
 void panic() __attribute__((noreturn));
 
+//! All functions below this point are untested.
+
+// Need to decide how exactly a "global" Parsed_FDT would work to remove these.
+// Might need to modify the gp (global pointer) to be valid.
+// Extra linker details required probably.
+// It would make sense to add a global FDT struct to the KLib header (for access to any KLib enabled programs)
+// Look into this further.
+void shutdown(fdt_parsed_list Parsed_FDT) __attribute__((noreturn));
+
+void reset(fdt_parsed_list Parsed_FDT) __attribute__((noreturn));
+
+void *memset(void *str, int c, size_t n);
+
+void *memcpy(void *dest, const void *src, size_t n);
+
+int memcmp(const void *str1, const void *str2, size_t n);
+
 #endif // _KMAIN_H_

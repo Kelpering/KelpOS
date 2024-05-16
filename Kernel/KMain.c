@@ -8,14 +8,9 @@ void KMain(fdt_header *FDT)
     //* Execution reaches here
     //^ VGA pixel or letter visual
     // What we need here is drivers and other absolute basic functionality
-    // Also be aware that a lot of this MIGHT have issues. I am unaware of how far the memory will "reach" so to speak.
+    // Also be aware that a lot of this MIGHT have issues. I am unaware of how far the memory will be loaded.
     // File system is probably vital soon
-        // File system will require some kind of generator function here (add that to make when necessary)
-    
-    //^ KLib will be a priority (Kernel library function that is statically linked here)
-    //^ Print function #1 priority
-    //^ Fix up Boot.asm to also fix values in some of the CSR registers
-    //* UART and other inputs and interrupts will be ignored for now
+        // File system will require some kind of generator function here (add that to Makefile when necessary)
 
     //* Successfully extracts FDT_Magic. Confirmed FDT structure
     if (FDT->magic != FDT_MAGIC)
@@ -25,6 +20,12 @@ void KMain(fdt_header *FDT)
 
     //^ Find devices of interest for now.
         //^ VGA, MMIO, RESERVED, RAM, etc
+
+    //^ Parse FDT
+    //^ Set up basic (fatal error) interrupt vector. (panic() basically) (requires FDT interrupt controller locations)
+        //^ Modify Boot.asm to set CSR values.
+        //^ Add register functions to set/get CSR values.
+    //^ Setup debug output (VGA or UART)
     
     
     return;
