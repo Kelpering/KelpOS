@@ -42,27 +42,6 @@ typedef struct {
 } __attribute__((packed)) fdt_prop;
 
 
-// Struct with values that are useful to core device drivers. Parsed from firmware provided FDT struct by fdt_parse().
-typedef struct {
-    // Handle Power/Reboot systems
-    uint32_t *power_addr;
-    uint32_t power_value;
-    uint32_t *reboot_addr;
-    uint32_t reboot_value;
-
-    // Handle UART
-    void *uart_addr;
-
-    // Handle VGA
-    void *vga_addr;
-
-    // Handle ram (largest block of contiguous ram)
-    void *ram_start;
-    void *ram_end;
-
-} fdt_parsed_list;
-
-
 int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed);
 
 fdt_prop *fdt_next_prop(const fdt_prop *CurrProp);

@@ -8,17 +8,17 @@ void panic()
         asm("wfi");
 }
 
-// void shutdown(fdt_parsed_list Parsed_FDT)
-// {
-//     *Parsed_FDT.power_addr = Parsed_FDT.power_value;
-//     while (true);
-// }
+void shutdown(parsed_device_list Device_List)
+{
+    *Parsed_FDT.power_addr = Parsed_FDT.power_value;
+    while (true);
+}
 
-// void reset(fdt_parsed_list Parsed_FDT)
-// {
-//     *Parsed_FDT.reboot_addr = Parsed_FDT.reboot_value;
-//     while (true);
-// }
+void reset(parsed_device_list Device_List)
+{
+    *Parsed_FDT.reboot_addr = Parsed_FDT.reboot_value;
+    while (true);
+}
 
 void *memset(void *str, int c, size_t n)
 {
