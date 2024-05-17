@@ -3,7 +3,7 @@
 
 uint8_t Stack[4096];
 
-void KMain(fdt_header *FDT)
+void KMain(fdt_header *fdt)
 {
     //* Execution reaches here
     //^ VGA pixel or letter visual
@@ -13,10 +13,11 @@ void KMain(fdt_header *FDT)
         // File system will require some kind of generator function here (add that to Makefile when necessary)
 
     //* Successfully extracts FDT_Magic. Confirmed FDT structure
-    if (FDT->magic != FDT_MAGIC)
+    if (fdt->magic != REVERSE_32(FDT_MAGIC))
         panic();
+    fdt_parsed_list test;
+    fdt_parse(fdt, &test);
     // Alright, so the FDT seems to work, we need to save all these important values in a struct for an FDT parser func
-    *((uint32_t*)0x100000) = 0x5555;
 
     //^ Find devices of interest for now.
         //^ VGA, MMIO, RESERVED, RAM, etc

@@ -1,12 +1,16 @@
 #ifndef _FDT_H_
 #define _FDT_H_
 
-#include "intdef.h"
+#include "KLib.h"
 
 //* Const
 
 // Big endian converted
-const uint32_t FDT_MAGIC = 0xedfe0dd0;
+#define FDT_MAGIC 0xd00dfeed
+#define FDT_BEGIN 0x1
+#define FDT_END_NODE 0x2
+#define FDT_PROP 0x3
+#define FDT_END 0x9
 
 //* Structs
 
@@ -33,7 +37,7 @@ typedef struct {
 typedef struct {
     uint32_t length;
     uint32_t name_offset;
-} __attribute__((packed)) fdt_struct_entry;
+} __attribute__((packed)) fdt_prop;
 
 
 // Struct with values that are useful to core device drivers. Parsed from firmware provided FDT struct by fdt_parse().
@@ -57,7 +61,9 @@ typedef struct {
 } fdt_parsed_list;
 
 
+int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed);
+
 // Parses FDT and returns useful values into fdt_parsed_list struct. Expanded per device supported.
-int fdt_parse(fdt_header *fdt);
+void *parse_compatible(char *node_str, fdt_header *fdt);
 
 #endif // _FDT_H_
