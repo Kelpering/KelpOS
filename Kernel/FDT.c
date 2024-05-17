@@ -3,7 +3,7 @@
 int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed)
 {
     // If fdt magic is invalid, return error
-    if (fdt->magic != REVERSE_32(FDT_MAGIC))
+    if (fdt->magic != FDT_MAGIC)
         return error;
     
     //* Assume FDT is sane after this point, add checks if desired before here.
@@ -35,11 +35,13 @@ int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed)
 void *parse_compatible(char *node_str, fdt_header *fdt)
 {
     uint32_t *StructBlock = ((uint8_t*) fdt)+REVERSE_32(fdt->off_dt_struct);
+    StructBlock = ((uint8_t*) StructBlock) + 8;
 
+    fdt_prop *Next = fdt_next_prop(StructBlock);
     // Probably some sort of error interrupt being thrown here. Fix this issue, then actually add an interrupt panic.
-    uint32_t TEST = REVERSE_32(*StructBlock);
-    char *Node_Name = ((uint8_t*) StructBlock)+4;
-    char First = *Node_Name;
+    // uint32_t TEST = REVERSE_32(*StructBlock);
+    // char *Node_Name = ((uint8_t*) StructBlock)+4;
+    // char First = *Node_Name;
 
     // Search root nodes until you either reach the end of the nodes or find a matching string.
 
@@ -54,9 +56,23 @@ void *parse_compatible(char *node_str, fdt_header *fdt)
 //! fdt_string_offset will convert an fdt_prop struct name offset into a char* to the actual NULL terminated string in the string offset block.
 //! Build these core features first, then work out into necessary algorithms. (Search for string, Search compatible, etc)
 
-fdt_prop *fdt_next_prop(fdt_prop *Current)
+fdt_prop *fdt_next_prop(const fdt_prop *CurrProp)
 {
+    // Calculates offset from CurrProp to the next Prop token
+    uint32_t Offset = 11 + REVERSE_32(CurrProp->length);
+    Offset += 3 - ((Offset+3) %4);
 
+    // Finds NextProp, skips all FDT_NOP tokens.
+    fdt_prop* NextProp = ((uint8_t*) CurrProp) + Offset;
+    while(NextProp->token == FDT_NOP)
+        NextProp = ((uint8_t*) NextProp) + 1;
+
+    // Checks if token is FDT_PROP. If not, return NULL to indicate end of properties.
+    if (NextProp->token != FDT_PROP)
+        return NULL;
+    
+    // Return NextProp
+    return NextProp;
 }
 
 void *fdt_next_node(void *Current, fdt_header *fdt)

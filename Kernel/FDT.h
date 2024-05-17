@@ -6,11 +6,12 @@
 //* Const
 
 // Big endian converted
-#define FDT_MAGIC 0xd00dfeed
-#define FDT_BEGIN 0x1
-#define FDT_END_NODE 0x2
-#define FDT_PROP 0x3
-#define FDT_END 0x9
+#define FDT_MAGIC REVERSE_32(0xd00dfeed)
+#define FDT_BEGIN REVERSE_32(0x1)
+#define FDT_END_NODE REVERSE_32(0x2)
+#define FDT_PROP REVERSE_32(0x3)
+#define FDT_NOP REVERSE_32(0x04)
+#define FDT_END REVERSE_32(0x9)
 
 //* Structs
 
@@ -35,6 +36,7 @@ typedef struct {
 
 // Struct (rename comment)
 typedef struct {
+    uint32_t token; // 0x03 (Big-Endian)
     uint32_t length;
     uint32_t name_offset;
 } __attribute__((packed)) fdt_prop;
@@ -62,6 +64,8 @@ typedef struct {
 
 
 int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed);
+
+fdt_prop *fdt_next_prop(const fdt_prop *CurrProp);
 
 // Parses FDT and returns useful values into fdt_parsed_list struct. Expanded per device supported.
 void *parse_compatible(char *node_str, fdt_header *fdt);

@@ -20,6 +20,7 @@ typedef uint64_t size_t;
 #define true 1
 #define false 0
 #define error -1
+#define NULL 0
 
 //* Endian macros
 
@@ -57,9 +58,9 @@ void panic() __attribute__((noreturn));
 // Extra linker details required probably.
 // It would make sense to add a global FDT struct to the KLib header (for access to any KLib enabled programs)
 // Look into this further.
-void shutdown(fdt_parsed_list Parsed_FDT) __attribute__((noreturn));
+// void shutdown(fdt_parsed_list Parsed_FDT) __attribute__((noreturn));
 
-void reset(fdt_parsed_list Parsed_FDT) __attribute__((noreturn));
+// void reset(fdt_parsed_list Parsed_FDT) __attribute__((noreturn));
 
 void *memset(void *str, int c, size_t n);
 

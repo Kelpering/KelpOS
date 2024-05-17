@@ -8,24 +8,24 @@ void panic()
         asm("wfi");
 }
 
-void shutdown(fdt_parsed_list Parsed_FDT)
-{
-    *Parsed_FDT.power_addr = Parsed_FDT.power_value;
-    while (true);
-}
+// void shutdown(fdt_parsed_list Parsed_FDT)
+// {
+//     *Parsed_FDT.power_addr = Parsed_FDT.power_value;
+//     while (true);
+// }
 
-void reset(fdt_parsed_list Parsed_FDT)
-{
-    *Parsed_FDT.reboot_addr = Parsed_FDT.reboot_value;
-    while (true);
-}
+// void reset(fdt_parsed_list Parsed_FDT)
+// {
+//     *Parsed_FDT.reboot_addr = Parsed_FDT.reboot_value;
+//     while (true);
+// }
 
 void *memset(void *str, int c, size_t n)
 {
     for (size_t i = 0; i < n; i++)
         ((uint8_t*)str)[i] = c;
 
-    return dest;
+    return str;
 }
 
 void *memcpy(void *dest, const void *src, size_t n)
