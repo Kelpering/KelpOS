@@ -15,8 +15,8 @@ void KMain(fdt_header *fdt)
     //* Successfully extracts FDT_Magic. Confirmed FDT structure
     if (fdt->magic != FDT_MAGIC)
         panic();
-    fdt_parsed_list test;
-    fdt_parse(fdt, &test);
+    // fdt_parsed_list test;
+    fdt_parse(fdt);
     // Alright, so the FDT seems to work, we need to save all these important values in a struct for an FDT parser func
 
     //^ Find devices of interest for now.

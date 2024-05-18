@@ -42,9 +42,11 @@ typedef struct {
 } __attribute__((packed)) fdt_prop;
 
 
-int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed);
+int fdt_parse(fdt_header *fdt);
 
 fdt_prop *fdt_next_prop(const fdt_prop *CurrProp);
+
+char *fdt_prop_name(fdt_prop *Prop, fdt_header *fdt);
 
 // Parses FDT and returns useful values into fdt_parsed_list struct. Expanded per device supported.
 void *parse_compatible(char *node_str, fdt_header *fdt);

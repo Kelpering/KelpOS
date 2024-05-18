@@ -1,6 +1,6 @@
 #include "FDT.h"
 
-int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed)
+int fdt_parse(fdt_header *fdt)
 {
     // If fdt magic is invalid, return error
     if (fdt->magic != FDT_MAGIC)
@@ -34,10 +34,11 @@ int fdt_parse(fdt_header *fdt, fdt_parsed_list *fdt_parsed)
 
 void *parse_compatible(char *node_str, fdt_header *fdt)
 {
-    uint32_t *StructBlock = ((uint8_t*) fdt)+REVERSE_32(fdt->off_dt_struct);
+    fdt_prop *StructBlock = ((uint8_t*) fdt)+REVERSE_32(fdt->off_dt_struct);
     StructBlock = ((uint8_t*) StructBlock) + 8;
 
-    fdt_prop *Next = fdt_next_prop(StructBlock);
+    char *Test = fdt_prop_name(StructBlock, fdt);
+    
     // Probably some sort of error interrupt being thrown here. Fix this issue, then actually add an interrupt panic.
     // uint32_t TEST = REVERSE_32(*StructBlock);
     // char *Node_Name = ((uint8_t*) StructBlock)+4;
@@ -82,9 +83,9 @@ void *fdt_next_node(void *Current, fdt_header *fdt)
     // If the last node is found, (FDT_END) return NULL pointer, which will be detected in search.
 }
 
-char *fdt_string_offset(uint32_t offset, fdt_header *fdt)
+char *fdt_prop_name(fdt_prop *Prop, fdt_header *fdt)
 {
     char *StringBlock = ((uint8_t*) fdt) + REVERSE_32(fdt->off_dt_strings);
 
-    return (StringBlock+offset);
+    return (StringBlock+REVERSE_32(Prop->name_offset));
 }

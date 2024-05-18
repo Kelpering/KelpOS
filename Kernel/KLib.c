@@ -10,13 +10,13 @@ void panic()
 
 void shutdown(parsed_device_list Device_List)
 {
-    *Parsed_FDT.power_addr = Parsed_FDT.power_value;
+    *Device_List.power_addr = Device_List.power_value;
     while (true);
 }
 
 void reset(parsed_device_list Device_List)
 {
-    *Parsed_FDT.reboot_addr = Parsed_FDT.reboot_value;
+    *Device_List.reboot_addr = Device_List.reboot_value;
     while (true);
 }
 
