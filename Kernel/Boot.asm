@@ -4,7 +4,10 @@
 .section .text
 .global _start
 _start:
-    # Load Stack into stack pointer
+    # ^ Add initializing code to begin Interrupt Control
+
+
+    # Load Stack (array within KMain) into stack pointer
     la sp, Stack
 
     # Add size of Stack (4096) to sp because it grows downwards.
@@ -12,11 +15,11 @@ _start:
     add sp, sp, t0
     
     # Call function KMain in KMain.c
-    # paramter 1 is the FDT pointer
-    mv a0, a1
+    #// paramter 1 is the FDT pointer
+    #// mv a0, a1
     call KMain
     
-    # When KMain returns, spin infinitely
+    # If KMain returns, spin infinitely
 1:
     wfi
     j   1b

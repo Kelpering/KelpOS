@@ -1,9 +1,12 @@
 #include "KLib.h"
 #include "FDT.h"
+#include "Riscv.h"
+#include "Interrupts.h"
+#include "Uart.h"
 
-uint8_t Stack[4096];
+volatile uint8_t Stack[4096];
 
-void KMain(fdt_header *fdt)
+void KMain()
 {
     //* Execution reaches here
     //^ VGA pixel or letter visual
@@ -12,22 +15,20 @@ void KMain(fdt_header *fdt)
     // File system is probably vital soon
         // File system will require some kind of generator function here (add that to Makefile when necessary)
 
-    //* Successfully extracts FDT_Magic. Confirmed FDT structure
-    if (fdt->magic != FDT_MAGIC)
-        panic();
-    // fdt_parsed_list test;
-    fdt_parse(fdt);
-    // Alright, so the FDT seems to work, we need to save all these important values in a struct for an FDT parser func
+    // There might have to be TWO(2) interrupt handlers in the future. One for kernel, one for Userspace
+    //^ Make this handle the important KERNEL interrupts 
+    //* Exceptions (kpanic and print some debug info into a register)
+    //! Software and Timer are disabled. Re-enable Timer during a future initialization step (multitasking or basic timer)
+    init_interrupts();
+    init_uart();
 
-    //^ Find devices of interest for now.
-        //^ VGA, MMIO, RESERVED, RAM, etc
+    //^ Modify uart_print into uart_printf with variadic arguments
+    //^ <stdarg.h> is freestanding, so we can use the variadic arguments in there for uart_printf.
+    uart_print("\n");
+    uart_print("UART initialized\n");
+    uart_print("> ");
 
-    //^ Parse FDT
-    //^ Set up basic (fatal error) interrupt vector. (panic() basically) (requires FDT interrupt controller locations)
-        //^ Modify Boot.asm to set CSR values.
-        //^ Add register functions to set/get CSR values.
-    //^ Setup debug output (VGA or UART)
-    
-    
+
+    kpanic(0xDEAD00000E0F);
     return;
 }

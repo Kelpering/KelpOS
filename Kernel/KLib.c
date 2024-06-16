@@ -1,23 +1,11 @@
 #include "KLib.h"
 
-void panic()
+void kpanic(uint64_t error_code)
 {
     // Replace asm with better debug info later
-    asm("li x1, 0x10000000DEADBEEF");
+    asm volatile("mv x1, %0" : : "r" (error_code));
     while(1)
         asm("wfi");
-}
-
-void shutdown(parsed_device_list Device_List)
-{
-    *Device_List.power_addr = Device_List.power_value;
-    while (true);
-}
-
-void reset(parsed_device_list Device_List)
-{
-    *Device_List.reboot_addr = Device_List.reboot_value;
-    while (true);
 }
 
 void *memset(void *str, int c, size_t n)

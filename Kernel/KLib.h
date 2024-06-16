@@ -47,42 +47,11 @@ typedef uint64_t size_t;
     ((uint16_t)(x)&0x00FF) << 8   \
 ))
 
-//* Structs
-
-// Struct with values that are useful to core device drivers. Parsed from firmware provided FDT struct by fdt_parse().
-typedef struct {
-    // Handle Power/Reboot systems
-    uint32_t *power_addr;
-    uint32_t power_value;
-    uint32_t *reboot_addr;
-    uint32_t reboot_value;
-
-    // Handle UART
-    void *uart_addr;
-
-    // Handle VGA
-    void *vga_addr;
-
-    // Handle ram (largest block of contiguous ram)
-    void *ram_start;
-    void *ram_end;
-
-} parsed_device_list;
-
 //* Functions
 
-void panic() __attribute__((noreturn));
+void kpanic(uint64_t error_code) __attribute__((noreturn));
 
 //! All functions below this point are untested.
-
-// Need to decide how exactly a "global" Parsed_FDT would work to remove these.
-// Might need to modify the gp (global pointer) to be valid.
-// Extra linker details required probably.
-// It would make sense to add a global FDT struct to the KLib header (for access to any KLib enabled programs)
-// Look into this further.
-void shutdown(parsed_device_list Device_List) __attribute__((noreturn));
-
-void reset(parsed_device_list Device_List) __attribute__((noreturn));
 
 void *memset(void *str, int c, size_t n);
 
