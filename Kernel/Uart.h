@@ -4,6 +4,8 @@
 #include "KLib.h"
 #include "FDT.h"
 
+#include <stdarg.h>
+
 #define UARTREG(reg) ((volatile uint8_t*)(UART0_ADDR+reg))
 
 //* To be used with UARTREG to identify specific UART register addresses
@@ -20,6 +22,11 @@ void uart_handler();
 
 void uart_putchar(char c);
 int uart_getchar();
-void uart_print(char *string);
+
+/// @brief Printf clone that works over uart.
+/// @param fmt Format string to be printed
+/// @note uses variadic arguments which are calculated using the format (fmt) string
+/// @warning All numbers expect uint64_t. Errors might show if you do not specify L or (uint64_t) on numbers.
+void uart_printf(char *fmt, ...);
 
 #endif // _UART_H_

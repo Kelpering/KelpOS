@@ -41,6 +41,6 @@ typedef struct
 
 void init_interrupts();
 
-void int_handler() __attribute__((aligned(4))) __attribute__((noreturn));
+void int_handler();
 
 #endif // _INTERRUPTS_H_

@@ -1,9 +1,10 @@
-# When an interrupt or exception appears, control will appear here.
+# When an interrupt or exception is called, control will redirect here.
 
 .section .text
-.global interrupt_vec
 .global interrupt_handler
 
+.global interrupt_vec
+.align 4
 interrupt_vec:
     addi sp, sp, -256;
     

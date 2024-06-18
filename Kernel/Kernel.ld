@@ -33,4 +33,6 @@ SECTIONS
         . = ALIGN(16);
         *(.bss .bss.*)
     }
+
+    PROVIDE(END_OF_KERNEL = .);
 }

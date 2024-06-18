@@ -2,11 +2,9 @@
 # .LD script puts _start at 0x80000000
 
 .section .text
-.global _start
+.global kmain
+
 _start:
-    # ^ Add initializing code to begin Interrupt Control
-
-
     # Load Stack (array within KMain) into stack pointer
     la sp, Stack
 
@@ -17,7 +15,7 @@ _start:
     # Call function KMain in KMain.c
     #// paramter 1 is the FDT pointer
     #// mv a0, a1
-    call KMain
+    call kmain
     
     # If KMain returns, spin infinitely
 1:

@@ -4,9 +4,11 @@
 #include "Interrupts.h"
 #include "Uart.h"
 
-volatile uint8_t Stack[4096];
+__attribute__((aligned (16))) volatile uint8_t Stack[4096];
 
-void KMain()
+extern uint8_t END_OF_KERNEL[];
+
+void kmain()
 {
     //* Execution reaches here
     //^ VGA pixel or letter visual
@@ -22,13 +24,10 @@ void KMain()
     init_interrupts();
     init_uart();
 
-    //^ Modify uart_print into uart_printf with variadic arguments
-    //^ <stdarg.h> is freestanding, so we can use the variadic arguments in there for uart_printf.
-    uart_print("\n");
-    uart_print("UART initialized\n");
-    uart_print("> ");
+    // Harvested Start from either _start or Kernel.ld start location
+    uart_printf("Start of Kernel: %p\nEnd of Kernel: %p", 0x80000000L, END_OF_KERNEL);
 
-
+    uart_printf("\n\n");
     kpanic(0xDEAD00000E0F);
     return;
 }
