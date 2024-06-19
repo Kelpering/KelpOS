@@ -59,4 +59,9 @@ void *memcpy(void *dest, const void *src, size_t n);
 
 int memcmp(const void *str1, const void *str2, size_t n);
 
+//* Externs
+
+extern uint8_t START_OF_KERNEL[];
+extern uint8_t END_OF_KERNEL[];
+
 #endif // _KMAIN_H_

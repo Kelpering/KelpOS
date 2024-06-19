@@ -5,6 +5,7 @@ SECTIONS
 {
     /* Place .text (containing _start symbol) is at -kernel jump point (assumed here) */
     . = 0x80000000;
+    PROVIDE(START_OF_KERNEL = .);
     
     .text : {
         *(.text .text.*)

@@ -1,5 +1,8 @@
 
-OBJS = Kernel/Boot.o Kernel/KMain.o Kernel/KLib.o Kernel/FDT.o Kernel/Riscv.o Kernel/Interrupts.o Kernel/InterruptVec.o Kernel/Uart.o
+OBJS = \
+Kernel/Boot.o Kernel/KMain.o Kernel/KLib.o Kernel/FDT.o \
+Kernel/Riscv.o Kernel/Interrupts.o Kernel/InterruptVec.o \
+Kernel/Uart.o Kernel/Memory.o
 
 QEMU = qemu-system-riscv64
 GDB = riscv64-unknown-elf-gdb

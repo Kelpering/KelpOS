@@ -3,10 +3,9 @@
 #include "Riscv.h"
 #include "Interrupts.h"
 #include "Uart.h"
+#include "Memory.h"
 
 __attribute__((aligned (16))) volatile uint8_t Stack[4096];
-
-extern uint8_t END_OF_KERNEL[];
 
 void kmain()
 {
@@ -23,9 +22,21 @@ void kmain()
     //! Software and Timer are disabled. Re-enable Timer during a future initialization step (multitasking or basic timer)
     init_interrupts();
     init_uart();
+    init_memory();
 
     // Harvested Start from either _start or Kernel.ld start location
-    uart_printf("Start of Kernel: %p\nEnd of Kernel: %p", 0x80000000L, END_OF_KERNEL);
+    uart_printf("Start of Kernel: %p\nEnd of Kernel: %p\n", START_OF_KERNEL, END_OF_KERNEL);
+
+
+    // Tests kfree, should return the same block both times.
+    void* test = kalloc();
+    uart_printf("\nKalloc result: \n[%p]", test);
+    kfree(test);
+
+    void* test2= kalloc();
+    uart_printf("\nKalloc result: \n[%p]", test2);
+    kfree(test2);
+    
 
     uart_printf("\n\n");
     kpanic(0xDEAD00000E0F);
