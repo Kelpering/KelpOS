@@ -3,8 +3,12 @@
 
 #include "KLib.h"
 
-#define ALLOC_OFFSET(start, x) (((uint64_t) start) + (((uint64_t) x) * 1024))
-#define BLOCK_OFFSET(start, ptr) (((uint64_t)ptr - (uint64_t)start) / 1024)
+// Start memblock at Kernel end, then align to the next 4096 byte boundary
+#define START_OF_MEMBLOCK ((void*)(((uint64_t)END_OF_KERNEL + 0xFFF) & ~0xFFFL))
+// End of usable ram by the kernel
+#define END_OF_MEMORY ((void*)(START_OF_KERNEL+(4096*1024)))
+#define MEM_FREE 0x80
+#define MEM_USED 0x40
 
 
 void init_memory();

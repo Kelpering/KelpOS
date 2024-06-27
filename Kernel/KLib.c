@@ -1,9 +1,11 @@
 #include "KLib.h"
+#include "Uart.h"
 
 void kpanic(uint64_t error_code)
 {
     // Replace asm with better debug info later
     asm volatile("mv x1, %0" : : "r" (error_code));
+    uart_printf("\nKPANIC = %X\n", error_code);
     while(1)
         asm("wfi");
 }

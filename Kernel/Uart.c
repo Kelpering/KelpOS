@@ -110,7 +110,11 @@ void uart_printf(char *fmt, ...)
                 break;
             case 'D':
             case 'd':
-                internal_uart_print_num(va_arg(v_ptr, uint64_t));
+                internal_uart_print_num(va_arg(v_ptr, int32_t));
+                break;
+            case 'L':
+            case 'l':
+                internal_uart_print_num(va_arg(v_ptr, int64_t));
                 break;
             case 'X':
             case 'P':

@@ -1,42 +1,62 @@
 #include "Memory.h"
 
-void* START_OF_MEMBLOCK;
-volatile static uint64_t bitfield_block;
-
+static uint8_t* last_free_block;
 
 void init_memory()
 {
-    START_OF_MEMBLOCK = (void*) (((uint64_t)END_OF_KERNEL + 0xFF) & ~0xFFL);
-    bitfield_block = 0;
+    // Start at the beginning of unused ram (4096 byte aligned). Iterate until we reach the end of kernel-defined usable memory.
+    for (uint8_t *ptr = START_OF_MEMBLOCK; (uint64_t)ptr < (uint64_t)END_OF_MEMORY; ptr+=4096)
+    {   
+        // Set block to Free (Not currently allocated / To be allocated)
+        *ptr = MEM_FREE;
+    }
+
+    // Set for use in more efficient algorithms
+    last_free_block = START_OF_MEMBLOCK;
 
     return;
 }
 
 void* kalloc()
 {
-    // Loop until we find a 0.
-    int i;
-    for (i = 0; ((bitfield_block >> i) & 1) != 0; i++)
+    // Save the allocation and set allocated block as used.
+    void* alloc = (void*)last_free_block;
+
+    // If the free block is NULL (aka out of memory) then return NULL and skip finding new free block.
+    //* kfree will eventually return more memory and reset the last_free_block variable.
+    if (last_free_block == NULL)
+        return NULL;
+
+    *last_free_block = MEM_USED;
+    while (true)
     {
-    // If the pos is higher than our bitfield, return no space left.
-    if (i >= 63)
-        return (void*) error;
+        // Iterate over every block until we find a free block. If at any point the block is neither free nor used, panic.
+        last_free_block += 4096;
+        if ((uint64_t)last_free_block > (uint64_t)END_OF_MEMORY)
+            last_free_block = NULL;
+
+
+        if (*last_free_block == MEM_FREE)
+            break;
+        else if (*last_free_block != MEM_USED)
+            kpanic(0xDEAD000A110C);
     }
 
-    // Set bitfield to show the block as occupied for future searches.
-    bitfield_block |= 1L << i;
-    
-    // Return address of 1024 byte (kilobyte) block.
-    return (void*) ALLOC_OFFSET(START_OF_MEMBLOCK, i);
+    return alloc;
 }
 
 void kfree(void* ptr)
 {
-    // if (((uint64_t)ptr % 1024) != 0)
-    //     return;
-    // Find pos offset value via BLOCK_OFFSET, then clear bit.
-    int i = BLOCK_OFFSET(START_OF_MEMBLOCK, ptr);
-    bitfield_block &= ~(1L << i);
+    // If ptr is not a valid beginning block ptr, panic.
+    if (((uint64_t)ptr % 4096) != 0)
+        kpanic(0xDEAD0000F433);
+    
+    // Mark block free
+    *(uint8_t*)ptr = MEM_FREE;
+
+    // If this block is less than the last free block, mark it as the last free block.
+    if ((uint64_t)ptr < (uint64_t)last_free_block)
+        last_free_block = ptr;
 
     return;
 }

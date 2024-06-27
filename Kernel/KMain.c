@@ -4,6 +4,24 @@
 #include "Interrupts.h"
 #include "Uart.h"
 #include "Memory.h"
+#include "Disk.h"
+
+//! Stolen from xv6-riscv (mit-pdos github)
+// qemu -machine virt is set up like this,
+// based on qemu's hw/riscv/virt.c:
+//
+// 00001000 -- boot ROM, provided by qemu
+// 02000000 -- CLINT
+// 0C000000 -- PLIC
+// 10000000 -- uart0 
+// 10001000 -- virtio disk 
+// 80000000 -- boot ROM jumps here in machine mode
+//             -kernel loads the kernel here
+// unused RAM after 80000000.
+
+
+
+
 
 __attribute__((aligned (16))) volatile uint8_t Stack[4096];
 
@@ -23,19 +41,18 @@ void kmain()
     init_interrupts();
     init_uart();
     init_memory();
+    init_disk();
 
-    // Harvested Start from either _start or Kernel.ld start location
-    uart_printf("Start of Kernel: %p\nEnd of Kernel: %p\n", START_OF_KERNEL, END_OF_KERNEL);
+    // Harvested Start from kernel.ld PROVIDE functions.
+    uart_printf("\nStart of Kernel: %p\nEnd of Kernel: %p\n", START_OF_KERNEL, END_OF_KERNEL);
 
+    //! The disk only works in multiples of 512 bytes (aka a sector).
+    //! Rewrite disk_access to work with singular blocks of 512, or maybe more?
+    uint8_t buffer[512] = {1};
+    disk_access(buffer, sizeof(buffer), 0, DISK_WRITE);
+    disk_access(buffer, sizeof(buffer), 0, DISK_READ);
+    
 
-    // Tests kfree, should return the same block both times.
-    void* test = kalloc();
-    uart_printf("\nKalloc result: \n[%p]", test);
-    kfree(test);
-
-    void* test2= kalloc();
-    uart_printf("\nKalloc result: \n[%p]", test2);
-    kfree(test2);
     
 
     uart_printf("\n\n");

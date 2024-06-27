@@ -4,3 +4,6 @@
 Kernel/*.o
 *.elf
 Kernel/*.elf
+fs.bin
+*.dtb
+*.dts
