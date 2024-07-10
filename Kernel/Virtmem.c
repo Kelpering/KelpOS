@@ -13,28 +13,33 @@ void init_virtmem()
     //* Map all MMIO devices and Kernel to the pagetable
     int error_code = 0;
 
-    // Map the kernel code as RX (read/execute) so that malicious or malformed code can't modify the kernel
+    //? Map the kernel code as RX (read/execute) so that malicious or malformed code can't modify the kernel
     error_code = map_pages(kpgtbl, (uint64_t)START_OF_KERNEL, ((uint64_t)END_OF_TEXT-(uint64_t)START_OF_KERNEL), (uint64_t)START_OF_KERNEL, PTE_R | PTE_X);
     if (error_code == error)
         uart_panic("VIRTMEM_INIT", "map pages failed to allocate [KERNEL CODE]");
 
-    // Map the kernel data sectors which are all after END_OF_TEXT (See Kernel.ld) as RW (read/write) so that malicious code can't run from data.
+    //? Map the kernel data sectors which are all after END_OF_TEXT (See Kernel.ld) as RW (read/write) so that malicious code can't run from data.
     error_code = map_pages(kpgtbl, (uint64_t)END_OF_TEXT, ((uint64_t)END_OF_KERNEL-(uint64_t)END_OF_TEXT), (uint64_t)END_OF_TEXT, PTE_R | PTE_W);
     if (error_code == error)
         uart_panic("VIRTMEM_INIT", "map pages failed to allocate [KERNEL DATA]");
 
-    // Map the kernel dynamic memory (separated for readability) as RW (read/write) so that malicious code can't run from data.
+    //? Map the kernel dynamic memory (separated for readability) as RW (read/write) so that malicious code can't run from data.
     error_code = map_pages(kpgtbl, (uint64_t)START_OF_MEM, (uint64_t)(END_OF_MEM)-(uint64_t)(START_OF_MEM), (uint64_t)START_OF_MEM, PTE_R | PTE_W);
     if (error_code == error)
         uart_panic("VIRTMEM_INIT", "map pages failed to allocate [KERNEL DATA]");
 
-    // Map UART
+    //? Map UART
     error_code = map_pages(kpgtbl, fdt_list.uart_addr, fdt_list.uart_size, fdt_list.uart_addr, PTE_R | PTE_W);
     if (error_code == error)
         uart_panic("VIRTMEM_INIT", "map pages failed to allocate [UART]");
 
-    // Map PLIC
+    //? Map PLIC
     error_code = map_pages(kpgtbl, fdt_list.plic_addr, fdt_list.plic_size, fdt_list.plic_addr, PTE_R | PTE_W);
+    if (error_code == error)
+        uart_panic("VIRTMEM_INIT", "map pages failed to allocate [PLIC]");
+
+    //? Map Syscon (allows for system shutdown and reset)
+    error_code = map_pages(kpgtbl, fdt_list.syscon_addr, fdt_list.syscon_size, fdt_list.syscon_addr, PTE_R | PTE_W);
     if (error_code == error)
         uart_panic("VIRTMEM_INIT", "map pages failed to allocate [PLIC]");
 
