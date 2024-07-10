@@ -1,62 +1,70 @@
 #include "Memory.h"
 
-static uint8_t* last_free_block;
+static free_pg *free_page_elem;
 
 void init_memory()
 {
-    // Start at the beginning of unused ram (4096 byte aligned). Iterate until we reach the end of kernel-defined usable memory.
-    for (uint8_t *ptr = START_OF_MEMBLOCK; (uint64_t)ptr < (uint64_t)END_OF_MEMORY; ptr+=4096)
-    {   
-        // Set block to Free (Not currently allocated / To be allocated)
-        *ptr = MEM_FREE;
+    // Free start of mem after kernel (page aligned) till end of memory (statically chosen)
+
+    // Create doubly linked circular list (first and last are incorrect)
+    for (uint64_t pg = (uint64_t) START_OF_MEM; pg < (uint64_t) END_OF_MEM; pg+=PG_SIZE)
+    {
+        ((free_pg*) pg)->prev = (free_pg*)(pg-PG_SIZE);
+        ((free_pg*) pg)->next = (free_pg*)(pg+PG_SIZE);
     }
 
-    // Set for use in more efficient algorithms
-    last_free_block = START_OF_MEMBLOCK;
+    // Fix first and last
+    ((free_pg*) START_OF_MEM)->prev = (free_pg*) ((uint64_t)END_OF_MEM-PG_SIZE);
+    ((free_pg*) ((uint64_t)END_OF_MEM-PG_SIZE))->next = (free_pg*) START_OF_MEM;
 
+    // Set the current free page to be the first element.
+    free_page_elem = START_OF_MEM;
+
+    // Return a pointer to the global free_page_elem (for debugging).
     return;
 }
 
-void* kalloc()
+void *kalloc()
 {
-    // Save the allocation and set allocated block as used.
-    void* alloc = (void*)last_free_block;
-
-    // If the free block is NULL (aka out of memory) then return NULL and skip finding new free block.
-    //* kfree will eventually return more memory and reset the last_free_block variable.
-    if (last_free_block == NULL)
+    // If there are no free pages left, return NULL.
+    if (free_page_elem == NULL)
         return NULL;
 
-    *last_free_block = MEM_USED;
-    while (true)
-    {
-        // Iterate over every block until we find a free block. If at any point the block is neither free nor used, panic.
-        last_free_block += 4096;
-        if ((uint64_t)last_free_block > (uint64_t)END_OF_MEMORY)
-            last_free_block = NULL;
+    // Make the previous page point to the next page.
+    (free_page_elem->prev)->next = free_page_elem->next;
+    // Make the next page point to the previous page.
+    (free_page_elem->next)->prev = free_page_elem->prev;
 
+    // Save the page we are allocating and replace the (now allocated) free_page_elem.
+    void *temp_page_elem = free_page_elem;
+    free_page_elem = free_page_elem->next;
 
-        if (*last_free_block == MEM_FREE)
-            break;
-        else if (*last_free_block != MEM_USED)
-            kpanic(0xDEAD000A110C);
-    }
-
-    return alloc;
+    return temp_page_elem;
 }
 
-void kfree(void* ptr)
+void *zalloc()
 {
-    // If ptr is not a valid beginning block ptr, panic.
-    if (((uint64_t)ptr % 4096) != 0)
-        kpanic(0xDEAD0000F433);
-    
-    // Mark block free
-    *(uint8_t*)ptr = MEM_FREE;
+    // Allocate a page and zero the memory.
+    void *page = kalloc();
+    memset(page, 0, PG_SIZE);
 
-    // If this block is less than the last free block, mark it as the last free block.
-    if ((uint64_t)ptr < (uint64_t)last_free_block)
-        last_free_block = ptr;
+    return page;
+}
+
+void kfree(void *page)
+{
+    // If the page is an invalid ptr, panic.
+    if ((uint64_t)page < (uint64_t)START_OF_MEM || (uint64_t)page > (uint64_t)END_OF_MEM || ((uint64_t)page % PG_SIZE) != 0)
+        uart_panic("KFREE", "Invalid PhysMem Page\nPage received: %P", page);
+
+
+    // Convert page into a free page (between free_page_elem and free_page_elem->next)
+    ((free_pg*)page)->prev = free_page_elem;
+    ((free_pg*)page)->next = free_page_elem->next;
+
+    // Insert page directly after free_page_elem
+    free_page_elem->next->prev = page;
+    free_page_elem->next = page;
 
     return;
 }
