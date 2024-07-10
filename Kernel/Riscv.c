@@ -1,98 +1,90 @@
 #include "Riscv.h"
 
-//* Template read/write pair code (replace [CSR] with appropriate csr)
-// uint64_t [CSR]_read()
-// {
-//     volatile uint64_t value;
-//     asm volatile ("csrr %0, [CSR]" : "=r" (value));
-//     return value;
-// }
+void sfence_vma()
+{
+    asm volatile("sfence.vma x0, x0");
+    return;
+}
 
-// void [CSR]_write(uint64_t value)
-// {
-//     asm volatile ("csrw [CSR], %0" : : "r" (value));
-//     return;
-// }
-
-uint64_t mstatus_read()
+uint64_t sstatus_read()
 {
     volatile uint64_t value;
-    asm volatile ("csrr %0, mstatus" : "=r" (value));
+    asm volatile ("csrr %0, sstatus" : "=r" (value));
     return value;
 }
 
-void mstatus_write(uint64_t value)
+void sstatus_write(uint64_t value)
 {
-    asm volatile ("csrw mstatus, %0" : : "r" (value));
+    asm volatile("csrw sstatus, %0" : : "r" (value));
     return;
 }
 
 
-uint64_t mtvec_read()
+uint64_t stvec_read()
 {
     volatile uint64_t value;
-    asm volatile ("csrr %0, mtvec" : "=r" (value));
+    asm volatile ("csrr %0, stvec" : "=r" (value));
     return value;
 }
 
-void mtvec_write(uint64_t value)
+void stvec_write(uint64_t value)
 {
-    asm volatile ("csrw mtvec, %0" : : "r" (value));
+    asm volatile("csrw stvec, %0" : : "r" (value));
     return;
 }
 
 
-uint64_t mie_read()
+uint64_t sie_read()
 {
     volatile uint64_t value;
-    asm volatile ("csrr %0, mie" : "=r" (value));
+    asm volatile ("csrr %0, sie" : "=r" (value));
     return value;
 }
 
-void mie_write(uint64_t value)
+void sie_write(uint64_t value)
 {
-    asm volatile ("csrw mie, %0" : : "r" (value));
+    asm volatile("csrw sie, %0" : : "r" (value));
     return;
 }
 
 
-uint64_t mip_read()
+uint64_t scause_read()
 {
     volatile uint64_t value;
-    asm volatile ("csrr %0, mip" : "=r" (value));
+    asm volatile ("csrr %0, scause" : "=r" (value));
     return value;
 }
 
-void mip_write(uint64_t value)
+void scause_write(uint64_t value)
 {
-    asm volatile ("csrw mip, %0" : : "r" (value));
+    asm volatile("csrw scause, %0" : : "r" (value));
     return;
 }
 
 
-uint64_t mcause_read()
+uint64_t sepc_read()
 {
     volatile uint64_t value;
-    asm volatile ("csrr %0, mcause" : "=r" (value));
+    asm volatile ("csrr %0, sepc" : "=r" (value));
     return value;
 }
 
-void mcause_write(uint64_t value)
+void sepc_write(uint64_t value)
 {
-    asm volatile ("csrw mcause, %0" : : "r" (value));
+    asm volatile("csrw sepc, %0" : : "r" (value));
     return;
 }
 
 
-uint64_t mepc_read()
+uint64_t satp_read()
 {
     volatile uint64_t value;
-    asm volatile ("csrr %0, mepc" : "=r" (value));
+    asm volatile ("csrr %0, satp" : "=r" (value));
     return value;
 }
 
-void mepc_write(uint64_t value)
+void satp_write(uint64_t value)
 {
-    asm volatile ("csrw mepc, %0" : : "r" (value));
+    asm volatile("csrw satp, %0" : : "r" (value));
     return;
 }

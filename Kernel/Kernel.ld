@@ -10,7 +10,9 @@ SECTIONS
     .text : {
         *(.text .text.*)
         . = ALIGN(0x1000);
+        PROVIDE(END_OF_TEXT = .);
     }
+    
 
     /* STexts do not need to be seperated from corresponding Texts */
 

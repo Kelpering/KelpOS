@@ -1,9 +1,13 @@
 .vscode/
 .vscode/*
+
 *.o
 Kernel/*.o
+
 *.elf
 Kernel/*.elf
-fs.bin
+
 *.dtb
 *.dts
+
+fs.bin

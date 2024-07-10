@@ -1,99 +1,118 @@
 #include "Uart.h"
 
-#define BACKSPACE 127
-#define RETURN '\r'
-#define HEX_UPPER 'A'
-#define HEX_LOWER 'a'
-
+#define BACKSPACE   0x7F
+#define RETURN      '\r'
+#define HEX_UPPER   'A'
+#define HEX_LOWER   'a'
 
 static void internal_uart_print_str(const char *string);
 static void internal_uart_print_num(int64_t num);
 static void internal_uart_print_hex(uint64_t num, char FMT);
-
+void internal_uart_va_printf(char *fmt, va_list v_ptr);
 
 void init_uart()
 {
-    // Disable interrupts on UART
+    // Disable interrupts on the UART device.
     *UARTREG(IER) = 0x00;
 
-    // Enter Set Baud mode
-    *UARTREG(LCR) = (1 << 7);
+    // Enter "Set Baud Rate" Mode
+    *UARTREG(LCR) = 1 << 7;
 
-    //* Full short for a baud rate of 38.4K
-    *UARTREG(0) = 0x03; // LSB for baud rate
-    *UARTREG(1) = 0x00; // MSB for baud rate
+    // Full short (uint16_t) for a 38.4K baud rate (divisor).
+    *UARTREG(0) = 0x03;
+    *UARTREG(1) = 0x00;
 
-    // Exit Set Baud mode; set line control to 8-bit words, no parity.
-    *UARTREG(LCR) = (3 << 0);
+    // Exit "Set Baud Rate" Mode and set line control to 8-bit words, no parity bit.
+    *UARTREG(LCR) = 3 << 0;
 
-    // Reset and Enable FIFO
-    *UARTREG(FCR) = (3 << 1) | (1 << 0);
+    // Reset and enable FIFO
+    *UARTREG(FCR) = (3<<1) | (1<<0);
 
-    // Enable transmit and receive interrupts
-    *UARTREG(IER) = (1<<1) | (1 << 0);
+    // Enable transmit and receive interrupts.
+    *UARTREG(IER) = (1<<1) | (1<<0);
 
     return;
 }
 
 void uart_handler()
 {
+    //^ Add buffer of x chars.
     int c = NULL;
 
+    // While there are characters in the UART buffer, continue handling.
     while (true)
     {
         c = uart_getchar();
         if (c == error)
             break;
         uart_putchar(c);
-
-        //^ Handle return (Enter) here for when the buffer is finished and we send it to the operating system.
     }
 
     return;
 }
 
-void uart_putchar(char c)
+void uart_putchar(int c)
 {
-    //* Wait until UART is idle (probably an artifact from xv6, as I don't have any multitasking)
-    while ((*UARTREG(LSR) & (1 << 5)) == 0);
+    // Wait until UART returns idle.
+    while ((*UARTREG(LSR) & (1<<5)) == 0);
 
-    //* Write char to UART transmit register
+    // Write a char to UART transmit register (and handle special characters).
     switch (c)
     {
     case BACKSPACE:
-        *(UARTREG(THR)) = '\b';
-        *(UARTREG(THR)) = ' ';
-        *(UARTREG(THR)) = '\b';
+        *UARTREG(THR) = '\b';
+        *UARTREG(THR) = ' ';
+        *UARTREG(THR) = '\b';
         break;
-        
     case RETURN:
-        *(UARTREG(THR)) = '\n';
+        *UARTREG(THR) = '\n';
         break;
-
     default:
-        *(UARTREG(THR)) = c;
+        *UARTREG(THR) = c;
         break;
     }
-        
 
     return;
 }
 
 int uart_getchar()
 {
-    // If UART has chars waiting to be input, read them. Otherwise return error for no char.
+    // If there is a character waiting to be received, return said character.
     if (*UARTREG(LSR) & 0x01)
-        return *UARTREG(RHR); 
+        return *UARTREG(RHR);
     
+    // If there are no characters left, return error (-1).
     return error;
+}
+
+void uart_panic(char *err, char *fmt, ...)
+{
+    va_list v_ptr;
+    uint64_t ra_reg;
+    asm volatile("mv %0, ra" : "=r" (ra_reg));
+
+    uart_printf("\n===PANIC: %s===\n", err);
+    uart_printf("Return Address: %P\n", ra_reg);
+
+    va_start(v_ptr, fmt);
+    internal_uart_va_printf(fmt, v_ptr);
+    va_end(v_ptr);
+
+    uart_printf("\n");
+
+    epanic(0xDEADC0DE);
 }
 
 void uart_printf(char *fmt, ...)
 {
     va_list v_ptr;
     va_start(v_ptr, fmt);
-    
+    internal_uart_va_printf(fmt, v_ptr);
+    va_end(v_ptr);
+}
 
+void internal_uart_va_printf(char *fmt, va_list v_ptr)
+{
     for (uint64_t i = 0; fmt[i] != '\0'; i++)
     {
         if (fmt[i] == '%')
@@ -134,7 +153,6 @@ void uart_printf(char *fmt, ...)
         else
             uart_putchar(fmt[i]);
     }
-    va_end(v_ptr);
 
     return;
 }

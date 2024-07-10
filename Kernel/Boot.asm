@@ -1,23 +1,26 @@
-# Allegedly, QEMU RISC-V virt assumes the kernel starts at 0x80000000
+# QEMU RISC-V virt assumes the kernel starts at 0x80000000
 # .LD script puts _start at 0x80000000
 
 .section .text
-.global kmain
+.global _start
+.global _mpanic
 
 _start:
-    # Load Stack (array within KMain) into stack pointer
-    la sp, Stack
+    # Load the end of kern_stack (see Kmain.c) into the stack pointer.
+    # Arithmetic can be performed on the label without overhead
+    la  sp, (kern_stack + 4095)
+    
+    # Call function kmain in KMain.c
+    call enter_c
+    
+    # If enter_c returns, spin indefinitely
+1:
+    wfi
+    j   1b
 
-    # Add size of Stack (4096) to sp because it grows downwards.
-    li t0, 4096
-    add sp, sp, t0
-    
-    # Call function KMain in KMain.c
-    #// paramter 1 is the FDT pointer
-    #// mv a0, a1
-    call kmain
-    
-    # If KMain returns, spin infinitely
+# For mtvec (in case we have some exception or interrupt in machine mode)
+_mpanic:
+    li  x1, 0xDEAD0000C0DE
 1:
     wfi
     j   1b

@@ -1,10 +1,10 @@
-#ifndef _INTERRUPTS_H_
-#define _INTERRUPTS_H_
+#ifndef __INTERRUPT_H__
+#define __INTERRUPT_H__
 
-#include "KLib.h"
+#include "Klib.h"
 #include "Riscv.h"
 
-typedef struct 
+typedef struct
 {
     uint64_t ra;
     uint64_t sp;
@@ -37,10 +37,11 @@ typedef struct
     uint64_t t4;
     uint64_t t5;
     uint64_t t6;
-} __attribute__((packed)) int_regs ;
+} __attribute__((packed)) int_regs;
 
 void init_interrupts();
 
-void int_handler();
+uint32_t claim_plic();
+void complete_plic(uint32_t irq);
 
-#endif // _INTERRUPTS_H_
+#endif // __INTERRUPTS_H__

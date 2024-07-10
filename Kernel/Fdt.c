@@ -1,56 +1,45 @@
-#include "FDT.h"
+#include "Fdt.h"
 
-#define SHUTDOWN_ADDR   0x100000
-#define SHUTDOWN_VAL    0x5555
-#define RESET_ADDR      0x100000
-#define RESET_VAL       0x7777
+// Create a global fdt_struct that is shared in Fdt.h
+fdt_struct fdt_list;
 
-// These are volatile to allow for writes to happen immediately
+void init_fdt()
+{
+    // In the future, we can harvest all of this from the flattened device tree (FDT)
+    // QEMU passes the address of this FDT structure in a1 during Boot.asm entry
+    fdt_list.syscon_addr = 0x100000;
+    fdt_list.syscon_size = 0x1000;
+    fdt_list.shutdown_val = 0x5555;
+    fdt_list.shutdown_offset = 0x0;
+    fdt_list.reset_val = 0x7777;
+    fdt_list.reset_offset = 0x0;
+
+    fdt_list.plic_addr = 0xC000000;
+    fdt_list.plic_size = 0x600000;
+    fdt_list.uart_addr = 0x10000000;
+    fdt_list.uart_size = 0x100;
+    fdt_list.uart_irq = 0x0a;
+
+    return;
+}
+
 void shutdown()
 {
     while (true)
-        *((volatile uint32_t*) SHUTDOWN_ADDR) = SHUTDOWN_VAL;
-    kpanic(0xDEAD);
+        *(uint16_t*)(fdt_list.syscon_addr + fdt_list.shutdown_offset) = fdt_list.shutdown_val;
+    
 }
 
 void reset()
 {
     while (true)
-        *((volatile uint32_t*) RESET_ADDR) = RESET_VAL;
-    kpanic(0xDEAD);
-}
-
-// // void init_plic()
-// // {
-// //     //^ Init the plic itself
-// //     return;
-// // }
-
-void init_plic_device(uint32_t irq)
-{
-    *(uint32_t*)(PLIC_ADDR + irq*4) = 1;
-    *(uint32_t*)(PLIC_ADDR + 0x2000) = 1 << irq;
-    
-    //^ Initializes a specific device for the plic
-    //^ Write a default value for priority
-    return;
-}
-
-uint32_t claim_plic()
-{   
-    uint32_t irq = *(uint32_t*)(PLIC_ADDR+0x200004);
-    return irq;
-}
-
-void complete_plic(uint32_t irq)
-{
-    *(uint32_t*)(PLIC_ADDR+0x200004) = irq;
-    return;
+        *(uint16_t*)(fdt_list.syscon_addr + fdt_list.reset_offset) = fdt_list.reset_val;
 }
 
 
 
-//? Revisit later to discover constants, not assume.
+
+//! WIP code for Flattened Device Tree parsing. Use as reference when revisiting.
 
 // // #define POWEROFF_ADDR 0x100000
 // // #define REBOOT_ADDR 0x100000

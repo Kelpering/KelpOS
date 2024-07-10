@@ -1,14 +1,30 @@
-#ifndef _FDT_H_
-#define _FDT_H_
+#ifndef __FDT_H__
+#define __FDT_H__
 
-#include "KLib.h"
+#include "Klib.h"
 
-#define PLIC_ADDR       0xC000000L  // Range 0x600000
-#define UART_IRQ        0x0a
+typedef struct 
+{
+    uint64_t syscon_addr;
+    uint64_t syscon_size;
+    uint16_t shutdown_val;
+    uint64_t shutdown_offset;
+    uint16_t reset_val;
+    uint64_t reset_offset;
 
-#define UART0_ADDR      0x10000000L // Rabge 0x100
+    uint64_t plic_addr;
+    uint64_t plic_size;
 
+    uint64_t uart_addr;
+    uint64_t uart_size;
+    uint8_t  uart_irq;
+} fdt_struct;
 
+// Share global fdt_list (Found in Fdt.c) with any file including Fdt.h
+extern fdt_struct fdt_list;
+
+/// @brief Initializes the global fdt_list struct for use in 
+void init_fdt();
 
 /// @brief Shuts down the cpu and associated devices. Does not clean or save anything.
 void shutdown() __attribute__((noreturn));
@@ -16,12 +32,11 @@ void shutdown() __attribute__((noreturn));
 /// @brief Resets the cpu and associated devices. Does not clean or save anything.
 void reset() __attribute__((noreturn));
 
+#endif // __FDT_H__
 
-void init_plic_device(uint32_t irq);
-uint32_t claim_plic();
-void complete_plic(uint32_t irq);
 
-//* Const
+//! WIP code for Flattened Device Tree parsing. Use as reference when revisiting.
+/////* Const
 
 // // Big endian converted
 // // #define FDT_MAGIC REVERSE_32(0xd00dfeed)
@@ -31,7 +46,7 @@ void complete_plic(uint32_t irq);
 // // #define FDT_NOP REVERSE_32(0x04)
 // // #define FDT_END REVERSE_32(0x9)
 
-//* Structs
+/////* Structs
 
 // // typedef struct {
 // //     uint32_t magic;             // 0xd00dfeed in big endian format
@@ -68,5 +83,3 @@ void complete_plic(uint32_t irq);
 
 // // // Parses FDT and returns useful values into fdt_parsed_list struct. Expanded per device supported.
 // // void *parse_compatible(char *node_str, fdt_header *fdt);
-
-#endif // _FDT_H_
