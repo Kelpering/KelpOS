@@ -10,7 +10,7 @@ _start:
     # Arithmetic can be performed on the label without overhead
     la  sp, (kern_stack + 4095)
     
-    # Call function kmain in KMain.c
+    # Call function enter_c in KMain.c
     call enter_c
     
     # If enter_c returns, spin indefinitely
