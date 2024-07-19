@@ -109,7 +109,7 @@ int map_pages(pgtbl pagetable, uint64_t pa, size_t size, uint64_t va, int perms)
         // Entry is a newly allocated leaf in the specified pagetable.
         entry = walk(pagetable, curr, 1);
         if (entry == 0)
-            return -1;
+            return error;
         
         if (*entry & PTE_V)
             uart_panic("MAP-PAGES", "virt_addr %P has already been mapped.\nentry config: %X", curr, *entry);
@@ -119,4 +119,45 @@ int map_pages(pgtbl pagetable, uint64_t pa, size_t size, uint64_t va, int perms)
     }
 
     return 0;
+}
+
+void unmap_pages(pgtbl pagetable, uint64_t va, size_t size)
+{
+    if (size == 0)
+        uart_panic("UNMAP-PAGES", "size: %d", size);
+    
+    // Align va so that the page is allocated to contain the minimum va value.
+    uint64_t curr = PAGE_ALIGN_DOWN(va); // first page aligned to contain the minimum va address
+    uint64_t last = PAGE_ALIGN_DOWN(va + size - 1); // last page aligned to contain the maximum va address.
+    pte *entry; // Contains the current entry being modified
+
+    for (; curr <= last; curr+=PG_SIZE, va+=PG_SIZE)
+    {
+        // Entry is an existing leaf, or (if unallocated) is ignored.
+        entry = walk(pagetable, curr, 0);
+        if (entry == 0)
+            continue;
+        
+        // Reset the entry to be 0 (unallocated) which deletes previous virtual address association.
+        *entry = (uint64_t) 0;
+    }
+
+    return;
+}
+
+int map_user_pages(pgtbl pagetable, uint64_t va, size_t size, uint64_t user_va)
+{
+    // Take both alloc/unalloc pages and convert them into user pages.
+    // Return NULL on failure, pointer to beginning of mem region on success
+    // va needs to be page-aligned (because we assume this is from kalloc).
+    // size in bytes of the user space (aligned up to be page-aligned)
+
+    if (size == 0 || (va % PG_SIZE != 0))
+        uart_panic("MAP-USERPAGE", "size: %d\nva: 0x%X", size, va);
+
+    // Unmap all required pages, then map all pages into RWX user pages.
+    unmap_pages(pagetable, va, size);
+    int error_code = map_pages(pagetable, va, size, user_va, PTE_R | PTE_W | PTE_X | PTE_U);
+
+    return error_code;
 }

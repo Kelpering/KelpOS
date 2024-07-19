@@ -71,7 +71,7 @@ void interrupt_handler()
         case 12:
         case 13:
         case 15:
-            uart_panic("PAGE FAULT", "%d", int_reason);
+            uart_panic("PAGE FAULT", "12: Execute\n13: Read\n15: Write\nReason: %d", int_reason);
             break;
 
         default:

@@ -41,4 +41,18 @@ pte *walk(pgtbl pagetable, uint64_t virt_addr, int alloc);
 /// @return 0 on success, -1 on failure.
 int map_pages(pgtbl pagetable, uint64_t pa, size_t size, uint64_t va, int perms);
 
+/// @brief For a given pagetable, unmap the virtual address range (va->va+size).
+/// @param pagetable Any valid pagetable, will be modified to remove entries matching the address range.
+/// @param va Virtual address to begin unmapping from. May not be page-aligned.
+/// @param size Size of data to unmap in bytes, beginning from va.
+void unmap_pages(pgtbl pagetable, uint64_t va, size_t size);
+
+/// @brief Map a range of virtual addresses to user_va in userspace.
+/// @param pagetable Any valid pagetable, will be modified to contain user pages.
+/// @param va Virtual address to convert, forms a range from (va->va+size).
+/// @param size Size of memory required.
+/// @param user_va Virtual address for u-mode.
+/// @return 
+int map_user_pages(pgtbl pagetable, uint64_t va, size_t size, uint64_t user_va);
+
 #endif // __VIRTMEM_H__

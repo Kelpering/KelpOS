@@ -26,6 +26,7 @@ void init_memory()
 
 void *kalloc()
 {
+    push_off();
     // If there are no free pages left, return NULL.
     if (free_page_elem == NULL)
         return NULL;
@@ -39,6 +40,7 @@ void *kalloc()
     void *temp_page_elem = free_page_elem;
     free_page_elem = free_page_elem->next;
 
+    pop_off();
     return temp_page_elem;
 }
 
@@ -57,7 +59,7 @@ void kfree(void *page)
     if ((uint64_t)page < (uint64_t)START_OF_MEM || (uint64_t)page > (uint64_t)END_OF_MEM || ((uint64_t)page % PG_SIZE) != 0)
         uart_panic("KFREE", "Invalid PhysMem Page\nPage received: %P", page);
 
-
+    push_off();
     // Convert page into a free page (between free_page_elem and free_page_elem->next)
     ((free_pg*)page)->prev = free_page_elem;
     ((free_pg*)page)->next = free_page_elem->next;
@@ -65,6 +67,7 @@ void kfree(void *page)
     // Insert page directly after free_page_elem
     free_page_elem->next->prev = page;
     free_page_elem->next = page;
+    pop_off();
 
     return;
 }

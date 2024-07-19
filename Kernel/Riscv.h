@@ -10,6 +10,15 @@ void sfence_vma();
 uint64_t sstatus_read();
 void sstatus_write(uint64_t value);
 
+//* SStatus interrupt bit specific modifiers (SSIE)
+void intr_on();
+void intr_off();
+bool_t intr_get();
+
+//* Saves the state of interrupts, disables interrupts, and restores interrupts. Designed to be nested.
+void push_off();
+void pop_off();
+
 //* Stvec (Supervisor trap vector)
 uint64_t stvec_read();
 void stvec_write(uint64_t value);

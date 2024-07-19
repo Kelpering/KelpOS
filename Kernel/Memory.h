@@ -2,6 +2,7 @@
 #define __MEMORY_H__
 
 #include "Klib.h"
+#include "Riscv.h"
 
 
 #define PG_SIZE 4096    // The size of a standard page in bytes

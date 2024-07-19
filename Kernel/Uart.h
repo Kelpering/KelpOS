@@ -3,6 +3,7 @@
 
 #include "Klib.h"
 #include "Fdt.h"
+#include "Riscv.h"
 #include <stdarg.h> // Variadic arguments
 
 #define UARTREG(reg) ((volatile uint8_t*)(fdt_list.uart_addr+(reg)))

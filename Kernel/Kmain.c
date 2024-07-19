@@ -69,6 +69,7 @@ void kmain()
     uart_printf("End of Memory:   %P\n", END_OF_MEM);
     uart_printf("-----------------------------------\n\n");
 
+    
 
     //* S-Mode conversions
     //* Interrupts
@@ -77,6 +78,37 @@ void kmain()
     //* Uart interrupts (return sent characters to console to allow display)
     //* K Memory (page-grain alloc)
     //* K Memory (paging)
+    //* Multitasking protections
+    //? The kernel will allow interruptions while in S-Mode
+    //? Instead of spinlocks (which function between harts) we will use just interrupt disable
+    //? While in critical sections of code (such as UART, DISK, etc) we will disable interrupts for a period, then reenable
+    //? Utilizing push/pop off will also prevent accidental overwrites or enables of interrupts when undesired.
+    //? Implement that as the multitasking protection and we are golden.
+    //^ Userland
+        //^ Allocate Virtual memory for program (allocProg)
+        //^ Userland test function (write to Virt Mem)
+        //^ Userland interrupt vector
+        // We will utilize disk at a later point to load programs.
+        // All userland will be at this point is an executable with no syscall
+        // Once we enter userland, we cannot leave (until later)
+    //^ Syscall
+        //^ SYS_test (just test if syscalls work, write a pointer?)
+        //^ SYS_sbrk (expand or contract available memory to the program)
+        //^ 
+    //^ Disk
+        //^ mkfs seperate program so the Kernel itself doesnt do that.
+        //^ Buffer system (UNIX design principles book will be useful here)
+        //^ File System
+        //^ Userland Executables
+    //^ Userland Continued
+        //^ Load userland executable files into memory as program.
+        //^ User.ld
+        //^ Ulib
+        //^ Malloc
+    //^ Multitasking
+        //^ Timer interrupts
+        //^ Debug deadlocks, race conditions, general errors, and other fun :)
+    //^ VGA
 
 
     uart_printf("\n\n");

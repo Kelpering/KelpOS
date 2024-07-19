@@ -16,6 +16,7 @@ typedef unsigned long long uint64_t;
 
 // MISC
 typedef uint64_t size_t;
+typedef _Bool bool_t;
 #define true 1
 #define false 0
 #define error -1
@@ -71,6 +72,5 @@ void uart_panic(char *err, char *fmt, ...) __attribute__((noreturn));
 void *memset(void *ptr, uint8_t byte, size_t n);
 void *memcpy(void *dest, const void *src, size_t n);
 int memcmp(const void *str1, const void *str2, size_t n);
-
 
 #endif //__KLIB_H__

@@ -113,6 +113,7 @@ void uart_printf(char *fmt, ...)
 
 void internal_uart_va_printf(char *fmt, va_list v_ptr)
 {
+    push_off();
     for (uint64_t i = 0; fmt[i] != '\0'; i++)
     {
         if (fmt[i] == '%')
@@ -153,6 +154,7 @@ void internal_uart_va_printf(char *fmt, va_list v_ptr)
         else
             uart_putchar(fmt[i]);
     }
+    pop_off();
 
     return;
 }
@@ -198,6 +200,8 @@ static void internal_uart_print_num(int64_t num)
 
     // Get the address of the first position on the string, ignore empty space.
     internal_uart_print_str(&str[++str_pos]);
+
+    return;
 }
 
 static void internal_uart_print_hex(uint64_t num, char FMT)
@@ -223,4 +227,6 @@ static void internal_uart_print_hex(uint64_t num, char FMT)
 
     // Get the address of the first position on the string, ignore empty space.
     internal_uart_print_str(str);
+
+    return;
 }
