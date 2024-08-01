@@ -50,6 +50,28 @@ void enter_c()
 }
 
 
+__attribute__((noreturn)) void test_user_switch(void* func)
+{
+    // Jump to the void* func in U-Mode. Have to merge this locally.
+
+    // Set SPP (S-Previous Mode: U-Mode)
+    uint64_t temp_sstatus = sstatus_read() | 1<<8;
+    sstatus_write(temp_sstatus);
+
+    // Set SIE (S-Interrupt Enable: off)
+    uint64_t temp_sie = sie_read() & ~(1<<1);
+    sie_write(temp_sie);
+
+    // Set SEPC (S-Exception PC: func)
+    sepc_write(func); 
+
+    // Interrupts will be ignored, ignore StVec
+
+    // SRET
+    asm volatile("sret");
+}
+
+
 void kmain()
 {
     init_fdt();
